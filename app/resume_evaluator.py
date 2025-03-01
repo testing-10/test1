@@ -63,12 +63,12 @@ class ResumeEvaluator:
         system_prompt, user_prompt = self.create_prompt(resume_text, target_role)
         
         try:
-            # This is for a typical inference API - adjust based on your specific API
+            # Using Groq's API which follows OpenAI's API structure
             response = requests.post(
                 self.api_url,
                 headers={"Authorization": f"Bearer {self.api_key}"},
                 json={
-                    "model": "llama-3-8b-8192",  # Your specified model
+                    "model": "llama3-8b-8192",  # Groq's Llama 3 model
                     "messages": [
                         {"role": "system", "content": system_prompt},
                         {"role": "user", "content": user_prompt}
@@ -80,8 +80,7 @@ class ResumeEvaluator:
             
             if response.status_code == 200:
                 result = response.json()
-                # Extract and return the content from the response
-                # Adjust this according to your API's response structure
+                # Extract the content from the Groq response
                 return result.get("choices", [{}])[0].get("message", {}).get("content", "")
             else:
                 raise Exception(f"API Error: {response.status_code}, {response.text}")
