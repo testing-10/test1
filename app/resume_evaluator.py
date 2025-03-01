@@ -55,20 +55,19 @@ class ResumeEvaluator:
     def evaluate_resume(self, resume_text, target_role):
         """
         Evaluate a resume for a specific role
-        
-        Parameters:
-        resume_text: The text content of the resume
-        target_role: The target job role
         """
         system_prompt, user_prompt = self.create_prompt(resume_text, target_role)
         
         try:
-            # Using Groq's API which follows OpenAI's API structure
+            # Hardcode the URL for testing
+            api_url = "https://api.groq.com/v1/chat/completions"
+            print(f"Using API URL: {api_url}")
+            
             response = requests.post(
-                self.api_url,
+                api_url,  # Use the hardcoded URL
                 headers={"Authorization": f"Bearer {self.api_key}"},
                 json={
-                    "model": "llama3-8b-8192",  # Groq's Llama 3 model
+                    "model": "llama3-8b-8192",
                     "messages": [
                         {"role": "system", "content": system_prompt},
                         {"role": "user", "content": user_prompt}
@@ -78,12 +77,16 @@ class ResumeEvaluator:
                 }
             )
             
+            print(f"Response status: {response.status_code}")
+            if response.status_code != 200:
+                print(f"Error response: {response.text}")
+                
             if response.status_code == 200:
                 result = response.json()
-                # Extract the content from the Groq response
                 return result.get("choices", [{}])[0].get("message", {}).get("content", "")
             else:
                 raise Exception(f"API Error: {response.status_code}, {response.text}")
                 
         except Exception as e:
+            print(f"Exception details: {str(e)}")
             raise Exception(f"Error evaluating resume: {str(e)}")
